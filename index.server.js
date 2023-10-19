@@ -6,6 +6,8 @@ const cors = require("cors");
 // route import
 const formRoute = require("./src/routes/form");
 const meetRoute = require("./src/routes/meet");
+const jobApplicationRoute = require("./src/routes/jobApplication");
+const jobRoute = require("./src/routes/job");
 //mongoose connect
 
 const mongoString = process.env.db_url;
@@ -23,6 +25,8 @@ app.use(cors());
 app.use(express.json());
 app.use("/api", formRoute);
 app.use("/api", meetRoute);
+app.use("/api", jobApplicationRoute);
+app.use("/api", jobRoute);
 
 app.listen(8080, () => {
   console.log(`Server Started at ${8080}`);
