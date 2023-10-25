@@ -30,6 +30,6 @@ app.use("/api", meetRoute);
 app.use("/api", jobApplicationRoute);
 app.use("/api", jobRoute);
 
-app.listen(8080, () => {
-  console.log(`Server Started at ${8080}`);
+app.listen(8081, () => {
+  console.log(`Server Started at ${8081}`);
 });
