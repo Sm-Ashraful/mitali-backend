@@ -14,6 +14,11 @@ const jobApplicationSchema = new mongoose.Schema({
     type: String, // Store the file path in MongoDB
     required: true,
   },
+  status: {
+    type: String,
+    enum: ["new", "complete", "selected"], // Define the possible values
+    default: "new", // Set the default value
+  },
   // Add other fields as needed
 });
 

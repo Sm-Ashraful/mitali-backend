@@ -8,6 +8,7 @@ const formRoute = require("./src/routes/form");
 const meetRoute = require("./src/routes/meet");
 const jobApplicationRoute = require("./src/routes/jobApplication");
 const jobRoute = require("./src/routes/job");
+const path = require("path");
 //mongoose connect
 
 const mongoString = process.env.db_url;
@@ -23,6 +24,7 @@ database.once("connected", () => {
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use("/public", express.static(path.join(__dirname, "src", "uploads")));
 app.use("/api", formRoute);
 app.use("/api", meetRoute);
 app.use("/api", jobApplicationRoute);

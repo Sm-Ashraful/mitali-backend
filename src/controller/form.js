@@ -46,10 +46,10 @@ exports.getUserForm = async (req, res) => {
     });
 };
 exports.seenForm = async (req, res) => {
-  const { taskId } = req.params;
+  const { _id } = req.params;
 
   try {
-    const task = await Task.findById(taskId);
+    const task = await formModel.findById(_id);
     if (!task) {
       return res.status(404).json({ message: "Task not found" });
     }
