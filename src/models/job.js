@@ -23,6 +23,7 @@ const jobSchema = new mongoose.Schema({
     enum: ["active", "complete", "draft"], // Define the possible values
     default: "draft", // Set the default value
   },
+  deadline: String,
 });
 
 const Job = mongoose.model("Job", jobSchema);

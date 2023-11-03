@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 
 // route import
+const authRoute = require("./src/routes/auth");
 const formRoute = require("./src/routes/form");
 const meetRoute = require("./src/routes/meet");
 const jobApplicationRoute = require("./src/routes/jobApplication");
@@ -25,10 +26,12 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use("/public", express.static(path.join(__dirname, "src", "uploads")));
+app.use("/api", authRoute);
 app.use("/api", formRoute);
 app.use("/api", meetRoute);
 app.use("/api", jobApplicationRoute);
 app.use("/api", jobRoute);
+app.get("/", (req, res) => res.send("This is working"));
 
 app.listen(8081, () => {
   console.log(`Server Started at ${8081}`);

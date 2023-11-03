@@ -1,52 +1,114 @@
-const User = require("../models/User");
+const User = require("../models/auth");
 const jwt = require("jsonwebtoken");
-const config = require("../config/config"); // You'll need to define your own configuration
+const bcrypt = require("bcrypt");
+const shortid = require("shortid");
+exports.signup = async (req, res) => {
+  try {
+    const user = await User.findOne({ email: req.body.email });
 
-// Controller for user registration
-exports.register = (req, res) => {
-  const { username, email, password } = req.body;
-  const user = new User({ username, email, password });
-
-  user.save((err, newUser) => {
-    if (err) {
-      return res.status(400).json({ message: "Registration failed" });
+    if (user) {
+      return res.status(400).json({
+        message: "User already registered",
+      });
     }
 
-    res.status(201).json({ message: "Registration successful", user: newUser });
-  });
-};
+    const { name, email, password } = req.body;
+    const hash_password = await bcrypt.hash(password, 10);
 
-// Controller for user login
-exports.login = (req, res) => {
-  const { email, password } = req.body;
+    const _user = new User({
+      name,
+      email,
+      hash_password,
+      username: shortid.generate(),
+    });
 
-  User.findOne({ email }, (err, user) => {
-    if (err || !user) {
-      return res.status(401).json({ message: "Authentication failed" });
-    }
-
-    user.comparePassword(password, (err, isMatch) => {
-      if (err || !isMatch) {
-        return res.status(401).json({ message: "Authentication failed" });
-      }
-
+    const savedUser = await _user.save();
+    if (savedUser) {
       const token = jwt.sign(
-        { _id: user._id, email: user.email },
-        config.secret,
+        { _id: savedUser._id, role: savedUser.role },
+        process.env.JWT_SECRET,
         {
-          expiresIn: "1h",
+          expiresIn: "48h",
         }
       );
-
-      res.status(200).json({
-        message: "Authentication successful",
+      res.cookie("token", token, { expiresIn: "48h" });
+      return res.status(201).json({
+        message: "Sign Up successfully...!",
         token: token,
+        user: {
+          _id: savedUser._id,
+          name: savedUser.name,
+          email: savedUser.email,
+        },
       });
+    }
+  } catch (error) {
+    return res.status(400).json({
+      message: "Something Went Wrong",
     });
+  }
+};
+exports.signin = async (req, res) => {
+  try {
+    const user = await User.findOne({ email: req.body.email });
+
+    if (!user) {
+      return res.status(400).json({ message: "Invalid User Name or Password" });
+    }
+
+    const isPasswordValid = await user.authenticate(req.body.password);
+
+    if (!isPasswordValid) {
+      return res.status(400).json({ message: "Invalid User Name or Password" });
+    }
+
+    const token = jwt.sign(
+      { _id: user._id, role: user.role },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "48h",
+      }
+    );
+
+    const { _id, name, email, role } = user;
+
+    res.cookie("token", token, { expiresIn: "48h" });
+
+    return res.status(200).json({
+      token,
+      user: {
+        _id,
+        name,
+        email,
+        role,
+      },
+    });
+  } catch (error) {
+    return res.status(400).json({ message: "Something Went Wrong" });
+  }
+};
+exports.signout = (req, res) => {
+  res.clearCookie("token");
+  res.status(200).json({
+    message: "Signout successfully.....!",
   });
 };
 
-// Controller for user profile
-exports.profile = (req, res) => {
-  res.status(200).json({ user: req.user });
+exports.authenticateUser = (req, res, next) => {
+  const token = req.headers.authorization.split(" ")[1];
+  console.log("Token:", token);
+  if (!token) {
+    return res.status(401).send("Access denied. No token provided.");
+  }
+
+  try {
+    const secret = process.env.JWT_SECRET;
+    const decoded = jwt.verify(token, secret);
+    console.log("Secret: ", decoded);
+    req.user = decoded; // You can now access the user info in subsequent middleware or routes.
+    next();
+    return user;
+  } catch (error) {
+    res.status(401).send("Invalid token.");
+  }
 };
