@@ -19,7 +19,6 @@ exports.createJob = async (req, res) => {
       jobResponsibilities,
       education,
       experience,
-      experience,
       additionalRequirement,
       salary,
       other,

@@ -9,6 +9,7 @@ const formRoute = require("./src/routes/form");
 const meetRoute = require("./src/routes/meet");
 const jobApplicationRoute = require("./src/routes/jobApplication");
 const jobRoute = require("./src/routes/job");
+const leadRoute = require("./src/routes/lead");
 const path = require("path");
 //mongoose connect
 
@@ -31,6 +32,7 @@ app.use("/api", formRoute);
 app.use("/api", meetRoute);
 app.use("/api", jobApplicationRoute);
 app.use("/api", jobRoute);
+app.use("/api", leadRoute);
 app.get("/", (req, res) => res.send("This is working"));
 
 app.listen(8081, () => {
