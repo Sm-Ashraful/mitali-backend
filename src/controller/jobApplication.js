@@ -2,17 +2,18 @@ const JobApplication = require("../models/jobApplication");
 const nodemailer = require("nodemailer");
 
 exports.submitApplication = async (req, res) => {
-  const { name, phone, email } = req.body;
+  const { name, phone, email, jobTitle } = req.body;
   try {
     const newJobApplication = new JobApplication({
       name,
       phone,
       email,
+      jobTitle,
     });
     if (req.file) {
       newJobApplication.cv = process.env.API + "/public/" + req.file.filename;
     }
-    console.log("newJobApplication", newJobApplication);
+
     await newJobApplication.save();
     res
       .status(201)

@@ -5,6 +5,9 @@ const jobApplicationSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  jobTitle: {
+    type: String,
+  },
   phone: String,
   email: {
     type: String,
