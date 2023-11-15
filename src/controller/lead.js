@@ -1,4 +1,5 @@
 const axios = require("axios");
+const lead = require("../models/lead");
 exports.leadSubmit = async (req, res) => {
   try {
     const {
@@ -10,6 +11,7 @@ exports.leadSubmit = async (req, res) => {
       City,
       PhoneNumber,
       EmailAddress,
+      DateOfBirth,
     } = req.body;
 
     if (
@@ -20,7 +22,8 @@ exports.leadSubmit = async (req, res) => {
       !LastName |
       !City |
       !PhoneNumber |
-      !EmailAddress
+      !EmailAddress |
+      !DateOfBirth
     ) {
       return res.status(400).json({
         success: false,
@@ -47,7 +50,7 @@ exports.leadSubmit = async (req, res) => {
       SiteLicenseNumber: "",
       ContactData: {
         ZipCode: ZipCode,
-        State: "AL",
+        State: State,
         Address: Address,
         FirstName: FirstName,
         LastName: LastName,
@@ -58,7 +61,7 @@ exports.leadSubmit = async (req, res) => {
         IpAddress: "255.255.255.127",
       },
       Person: {
-        BirthDate: "1945-01-01",
+        BirthDate: DateOfBirth,
         Gender: "Male",
         RelationshipToApplicant: "Self",
         HouseHoldIncome: "$30,000 - $44,999",
@@ -113,6 +116,22 @@ exports.leadSubmit = async (req, res) => {
       }
     );
 
+    //backend instance
+    const leadDataForPanel = {
+      ZipCode,
+      State,
+      Address,
+      FirstName,
+      LastName,
+      City,
+      PhoneNumber,
+      EmailAddress,
+      DateOfBirth,
+    };
+
+    const _newleadData = new lead(leadDataForPanel);
+    _newleadData.save();
+
     res.status(200).json({
       success: true,
       message: "Lead submitted successfully",
@@ -134,4 +153,14 @@ exports.leadSubmit = async (req, res) => {
         .json({ success: false, message: "Internal server error" });
     }
   }
+};
+exports.getLeadData = async (req, res) => {
+  lead
+    .find({})
+    .then((data) => {
+      return res.status(201).json({ data });
+    })
+    .catch((error) => {
+      return res.status(400).json({ error });
+    });
 };
