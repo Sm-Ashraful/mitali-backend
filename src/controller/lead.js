@@ -1,5 +1,7 @@
 const axios = require("axios");
 const lead = require("../models/lead");
+const xml2js = require("xml2js");
+const parse = require("json5");
 exports.leadSubmit = async (req, res) => {
   try {
     const {
@@ -30,11 +32,18 @@ exports.leadSubmit = async (req, res) => {
         message: "ContactData is required in the request body",
       });
     }
+    const existingUser = await lead.findOne({ PhoneNumber });
+
+    if (existingUser) {
+      return res.status(201).json({
+        message: "Entry already in Database",
+      });
+    }
 
     const leadData = {
       ApiToken: "D68FD1FD-AFC9-4F1F-820E-331BA7F78544",
       Vertical: "Medicare",
-      SubId: "FB1",
+      SubId: "test_lead",
 
       UserAgent:
         "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.101 Safari/537.36",
@@ -106,7 +115,7 @@ exports.leadSubmit = async (req, res) => {
     };
 
     // Make a request to the Medicare API
-    const apiResponse = await axios.post(
+    const xmlResponse = await axios.post(
       "https://leadapi.px.com/api/lead/directpost",
       leadData,
       {
@@ -115,28 +124,45 @@ exports.leadSubmit = async (req, res) => {
         },
       }
     );
+    if (xmlResponse.status === 200) {
+      const parsedXML = await xml2js.parseStringPromise(xmlResponse.data, {
+        explicitArray: false,
+      });
+      const jsonData = JSON.stringify(parsedXML, null, 2);
+      const result = JSON.parse(jsonData);
+      if (result.Result.Success === "true") {
+        const leadDataForPanel = {
+          ZipCode,
+          State,
+          Address,
+          FirstName,
+          LastName,
+          City,
+          PhoneNumber,
+          EmailAddress,
+          DateOfBirth,
+          TransactionId: result.Result.TransactionId,
+        };
+        const _newleadData = new lead(leadDataForPanel);
+        _newleadData.save();
+
+        res.status(200).json({
+          success: true,
+          message: "Lead submitted successfully",
+          data: result.Result, // Extracting the data property from the response
+        });
+      } else {
+        res.status(201).json({
+          success: false,
+          message: result.Result.Message,
+          data: result.Result,
+        });
+      }
+    } else {
+      res.status(400).json({ message: "Information Invalid" });
+    }
 
     //backend instance
-    const leadDataForPanel = {
-      ZipCode,
-      State,
-      Address,
-      FirstName,
-      LastName,
-      City,
-      PhoneNumber,
-      EmailAddress,
-      DateOfBirth,
-    };
-
-    const _newleadData = new lead(leadDataForPanel);
-    _newleadData.save();
-
-    res.status(200).json({
-      success: true,
-      message: "Lead submitted successfully",
-      data: apiResponse.data, // Extracting the data property from the response
-    });
   } catch (error) {
     if (error.response) {
       console.error("HTTP error:", error.response.status);

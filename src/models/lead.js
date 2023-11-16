@@ -20,6 +20,7 @@ const schema = new mongoose.Schema(
     City: String,
     ZipCode: String,
     DateOfBirth: String,
+    TransactionId: String,
   },
   { timestamps: true }
 );
