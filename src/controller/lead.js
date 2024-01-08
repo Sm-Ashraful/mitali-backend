@@ -166,12 +166,10 @@ exports.leadSubmit = async (req, res) => {
       } else {
         res.status(400).json({ message: "Information Invalid" });
       }
-
+      res.status(3000).json({ message: "done" });
       //backend instance
     } catch (error) {
       if (error.response) {
-        console.error("HTTP error:", error.response.status);
-        console.error("Response data:", error.response.data);
         res.status(error.response.status).json({
           success: false,
           message: "API error",
