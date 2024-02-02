@@ -3,18 +3,26 @@ const lead = require("../models/lead");
 const xml2js = require("xml2js");
 const parse = require("json5");
 
-const zipCode = require("../lib/zipCode.json");
+const zipCode = require("../lib/zipCodeSecond.json");
 
 exports.leadSubmit = async (req, res) => {
+ 
   const existingUser = await lead.findOne({
-    PhoneNumber: req.body.PhoneNumber,
+    PhoneNumber: req.body.PhoneNumber.toString(),
   });
 
   if (existingUser) {
     return res.status(201).json({
       message: "Entry already in Database",
     });
-  } else {
+  } 
+    const isValid = zipCode.some(
+      (code) => code.Zip.toString() === req.body.ZipCode.toString()
+    );
+    if(!isValid){
+      return res.status(401).json({message:"The zip does not exists on the list. Invalid Zip code"})
+    }
+ 
     try {
       const {
         ZipCode,
@@ -166,7 +174,7 @@ exports.leadSubmit = async (req, res) => {
       } else {
         res.status(400).json({ message: "Information Invalid" });
       }
-      res.status(3000).json({ message: "done" });
+      res.status(200).json({ message: "done" });
       //backend instance
     } catch (error) {
       if (error.response) {
@@ -182,7 +190,7 @@ exports.leadSubmit = async (req, res) => {
           .json({ success: false, message: "Internal server error" });
       }
     }
-  }
+  
 };
 exports.getLeadData = async (req, res) => {
   lead
