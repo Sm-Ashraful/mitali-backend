@@ -38,14 +38,14 @@ exports.leadSubmit = async (req, res) => {
     } = req.body;
 
     if (
-      !ZipCode |
-      !State |
-      !Address |
-      !FirstName |
-      !LastName |
-      !City |
-      !PhoneNumber |
-      !EmailAddress |
+      !ZipCode ||
+      !State ||
+      !Address ||
+      !FirstName ||
+      !LastName ||
+      !City ||
+      !PhoneNumber ||
+      !EmailAddress ||
       !DateOfBirth
     ) {
       return res.status(400).json({
@@ -58,7 +58,6 @@ exports.leadSubmit = async (req, res) => {
       ApiToken: "7DB7F8FA-7F57-46A8-A494-187C9672ED14",
       Vertical: "Medicare",
       SubId: "12386",
-
       UserAgent:
         "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.101 Safari/537.36",
       OriginalUrl: "https://www.mitaliint.com",
@@ -66,9 +65,7 @@ exports.leadSubmit = async (req, res) => {
       JornayaLeadId: "",
       TrustedForm: "",
       SessionLength: "38",
-      TcpaText:
-        "By clicking Get My Quotes, I agree to the Terms of Service and Privacy Policy and authorize insurance companies, their agents and marketing partners to contact me about medicare insurance and other non-insurance offers by telephone calls, email and text messages to the number and email address I provided above. I agree to receive telemarketing calls, and pre-recorded messages via an autodialed phone system, even if my telephone number is a mobile number that is currently listed on any state, federal or corporate “Do Not Call” list. I understand that my consent is not a condition of purchase of any goods or services and that standard message and data rates may apply.",
-
+      TcpaText: "By clicking Get My Quotes, I agree to the Terms of Service...",
       FirstTimeBuyer: "Yes",
       SiteLicenseNumber: "",
       ContactData: {
@@ -134,16 +131,18 @@ exports.leadSubmit = async (req, res) => {
       leadData,
       {
         headers: {
-          "Content-Type": "application/json",
+          // "Content-Type": "application/json",
+          "Content-Type": "Application/xml",
         },
       }
     );
+
     if (xmlResponse.status === 200) {
       const parsedXML = await xml2js.parseStringPromise(xmlResponse.data, {
         explicitArray: false,
       });
-      const jsonData = JSON.stringify(parsedXML, null, 2);
-      const result = JSON.parse(jsonData);
+      const result = JSON.parse(JSON.stringify(parsedXML, null, 2));
+
       if (result.Result.Success === "true") {
         const leadDataForPanel = {
           ZipCode,
@@ -158,35 +157,33 @@ exports.leadSubmit = async (req, res) => {
           TransactionId: result.Result.TransactionId,
         };
         const _newleadData = new lead(leadDataForPanel);
-        _newleadData.save();
+        await _newleadData.save();
 
-        res.status(200).json({
+        return res.status(200).json({
           success: true,
           message: "Lead submitted successfully",
-          data: result.Result, // Extracting the data property from the response
+          data: result.Result,
         });
       } else {
-        res.status(201).json({
+        return res.status(201).json({
           success: false,
           message: result.Result.Message,
           data: result.Result,
         });
       }
     } else {
-      res.status(400).json({ message: "Information Invalid" });
+      return res.status(400).json({ message: "Information Invalid" });
     }
-    res.status(200).json({ message: "done" });
-    //backend instance
   } catch (error) {
     if (error.response) {
-      res.status(error.response.status).json({
+      return res.status(error.response.status).json({
         success: false,
         message: "API error",
         data: error.response.data,
       });
     } else {
       console.error("Error:", error.message);
-      res
+      return res
         .status(500)
         .json({ success: false, message: "Internal server error" });
     }
