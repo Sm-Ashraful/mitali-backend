@@ -65,9 +65,11 @@ exports.leadSubmit = async (req, res) => {
       JornayaLeadId: "",
       TrustedForm: "",
       SessionLength: "38",
-      TcpaText: "By clicking Get My Quotes, I agree to the Terms of Service...",
+      TcpaText:
+        "By clicking Get My Quotes, I agree to the Terms of Service and Privacy Policy and authorize insurance companies, their agents and marketing partners to contact me about medicare insurance and other non-insurance offers by telephone calls, email and text messages to the number and email address I provided above. I agree to receive telemarketing calls, and pre-recorded messages via an autodialed phone system, even if my telephone number is a mobile number that is currently listed on any state, federal or corporate “Do Not Call” list. I understand that my consent is not a condition of purchase of any goods or services and that standard message and data rates may apply",
       FirstTimeBuyer: "Yes",
       SiteLicenseNumber: "",
+      VerifyAddress: "false",
       ContactData: {
         ZipCode: ZipCode,
         State: State,
@@ -131,8 +133,8 @@ exports.leadSubmit = async (req, res) => {
       leadData,
       {
         headers: {
-          // "Content-Type": "application/json",
-          "Content-Type": "Application/xml",
+          "Content-Type": "application/json",
+          // "Content-Type": "Application/xml",
         },
       }
     );
@@ -142,7 +144,7 @@ exports.leadSubmit = async (req, res) => {
         explicitArray: false,
       });
       const result = JSON.parse(JSON.stringify(parsedXML, null, 2));
-
+      console.log("resusl: ", result);
       if (result.Result.Success === "true") {
         const leadDataForPanel = {
           ZipCode,
@@ -165,6 +167,8 @@ exports.leadSubmit = async (req, res) => {
           data: result.Result,
         });
       } else {
+        console.log("Lead submission failed:", result.Result.Message);
+
         return res.status(201).json({
           success: false,
           message: result.Result.Message,
