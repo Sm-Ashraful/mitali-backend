@@ -6,23 +6,23 @@ const parse = require("json5");
 const zipCode = require("../lib/zipCodeSecond.json");
 
 exports.leadSubmit = async (req, res) => {
-  const existingUser = await lead.findOne({
-    PhoneNumber: req.body.PhoneNumber.toString(),
-  });
+  // const existingUser = await lead.findOne({
+  //   PhoneNumber: req.body.PhoneNumber.toString(),
+  // });
 
-  if (existingUser) {
-    return res.status(201).json({
-      message: "Entry already in Database",
-    });
-  }
-  const isValid = zipCode.some(
-    (code) => code.Zip.toString() === req.body.ZipCode.toString()
-  );
-  if (!isValid) {
-    return res.status(401).json({
-      message: "The zip does not exists on the list. Invalid Zip code",
-    });
-  }
+  // if (existingUser) {
+  //   return res.status(201).json({
+  //     message: "Entry already in Database",
+  //   });
+  // }
+  // const isValid = zipCode.some(
+  //   (code) => code.Zip.toString() === req.body.ZipCode.toString()
+  // );
+  // if (!isValid) {
+  //   return res.status(401).json({
+  //     message: "The zip does not exists on the list. Invalid Zip code",
+  //   });
+  // }
 
   try {
     const {
@@ -55,7 +55,7 @@ exports.leadSubmit = async (req, res) => {
     }
 
     const leadData = {
-      ApiToken: "7DB7F8FA-7F57-46A8-A494-187C9672ED14",
+      ApiToken: "D68FD1FD-AFC9-4F1F-820E-331BA7F78544",
       Vertical: "Medicare",
       SubId: "12386",
       UserAgent:
@@ -69,7 +69,7 @@ exports.leadSubmit = async (req, res) => {
         "By clicking Get My Quotes, I agree to the Terms of Service and Privacy Policy and authorize insurance companies, their agents and marketing partners to contact me about medicare insurance and other non-insurance offers by telephone calls, email and text messages to the number and email address I provided above. I agree to receive telemarketing calls, and pre-recorded messages via an autodialed phone system, even if my telephone number is a mobile number that is currently listed on any state, federal or corporate “Do Not Call” list. I understand that my consent is not a condition of purchase of any goods or services and that standard message and data rates may apply",
       FirstTimeBuyer: "Yes",
       SiteLicenseNumber: "",
-      VerifyAddress: "false",
+      VerifyAddress: "true",
       ContactData: {
         ZipCode: ZipCode,
         State: State,
