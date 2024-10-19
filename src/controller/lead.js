@@ -3,26 +3,23 @@ const lead = require("../models/lead");
 const xml2js = require("xml2js");
 const parse = require("json5");
 
-const zipCode = require("../lib/zipCodeSecond.json");
+const existingNumber = require("../lib/existingInfo.json");
 
 exports.leadSubmit = async (req, res) => {
-  // const existingUser = await lead.findOne({
-  //   PhoneNumber: req.body.PhoneNumber.toString(),
-  // });
+  const existingUser = await lead.findOne({
+    PhoneNumber: req.body.PhoneNumber.toString(),
+  });
 
-  // if (existingUser) {
-  //   return res.status(201).json({
-  //     message: "Entry already in Database",
-  //   });
-  // }
-  // const isValid = zipCode.some(
-  //   (code) => code.Zip.toString() === req.body.ZipCode.toString()
-  // );
-  // if (!isValid) {
-  //   return res.status(401).json({
-  //     message: "The zip does not exists on the list. Invalid Zip code",
-  //   });
-  // }
+  const phoneNumbersSet = new Set(
+    existingNumber.map((item) => item.phoneNumber)
+  );
+  const exists = phoneNumbersSet.has(req.body.PhoneNumber.toString());
+
+  if (existingUser || exists) {
+    return res.status(201).json({
+      message: "Entry already in Database",
+    });
+  }
 
   try {
     const {
