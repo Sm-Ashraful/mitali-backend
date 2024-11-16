@@ -1,8 +1,8 @@
 const csv = require("csvtojson");
 const fs = require("fs");
 
-const csvFilePath = "../lib/OS PX Zips 11.2.23 (2).csv";
-const jsonFilePath = "../lib/zipCode.json";
+const csvFilePath = "./OSH_SuppressionList 22.csv";
+const jsonFilePath = "../lib/existingInfo.json";
 
 csv()
   .fromFile(csvFilePath)

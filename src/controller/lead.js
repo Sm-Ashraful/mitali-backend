@@ -51,6 +51,9 @@ exports.leadSubmit = async (req, res) => {
       });
     }
 
+    const sanitizedState = State.trim();
+    const sanitizedZipCode = ZipCode.trim();
+
     const leadData = {
       ApiToken: "D68FD1FD-AFC9-4F1F-820E-331BA7F78544",
       Vertical: "Medicare",
@@ -68,8 +71,8 @@ exports.leadSubmit = async (req, res) => {
       SiteLicenseNumber: "",
       VerifyAddress: "true",
       ContactData: {
-        ZipCode: ZipCode,
-        State: State,
+        ZipCode: sanitizedZipCode,
+        State: sanitizedState,
         Address: Address,
         FirstName: FirstName,
         LastName: LastName,
@@ -131,7 +134,6 @@ exports.leadSubmit = async (req, res) => {
       {
         headers: {
           "Content-Type": "application/json",
-          // "Content-Type": "Application/xml",
         },
       }
     );
@@ -165,7 +167,6 @@ exports.leadSubmit = async (req, res) => {
         });
       } else {
         console.log("Lead submission failed:", result.Result.Message);
-
         return res.status(201).json({
           success: false,
           message: result.Result.Message,
