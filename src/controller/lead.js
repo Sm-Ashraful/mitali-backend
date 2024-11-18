@@ -6,21 +6,6 @@ const parse = require("json5");
 const existingNumber = require("../lib/existingInfo.json");
 
 exports.leadSubmit = async (req, res) => {
-  const existingUser = await lead.findOne({
-    PhoneNumber: req.body.PhoneNumber.toString(),
-  });
-
-  const phoneNumbersSet = new Set(
-    existingNumber.map((item) => item.phoneNumber)
-  );
-  const exists = phoneNumbersSet.has(req.body.PhoneNumber.toString());
-
-  if (existingUser || exists) {
-    return res.status(201).json({
-      message: "Entry already in Database",
-    });
-  }
-
   try {
     const {
       ZipCode,
@@ -192,12 +177,16 @@ exports.leadSubmit = async (req, res) => {
   }
 };
 exports.getLeadData = async (req, res) => {
-  lead
-    .find({})
-    .then((data) => {
-      return res.status(201).json({ data });
-    })
-    .catch((error) => {
-      return res.status(400).json({ error });
-    });
+  try {
+    const threeMonthsAgo = new Date();
+    threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+
+    const data = await lead
+      .find({ createdAt: { $gte: threeMonthsAgo } }) // Filter for last three months
+      .sort({ createdAt: -1 }); // Sort by `createdAt` in descending order (latest first)
+
+    return res.status(200).json({ data });
+  } catch (error) {
+    return res.status(400).json({ error });
+  }
 };
