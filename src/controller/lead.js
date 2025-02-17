@@ -175,7 +175,7 @@ exports.leadSubmit = async (req, res) => {
       return res.status(400).json({ message: "Information Invalid" });
     }
   } catch (error) {
-    console.error("Error:", error.message);
+    console.log("Error:", error);
     if (error.response) {
       return res.status(error.response.status).json({
         success: false,
