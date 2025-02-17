@@ -37,20 +37,23 @@ exports.leadSubmit = async (req, res) => {
       });
     }
 
+    const buyerZipMap = new Map();
+    buyerZip.forEach((buyer) => {
+      buyerZipMap.set(buyer.zip.toString().trim(), buyer);
+    });
+
+    // Function to find buyer by zip using Map
+    const findBuyerByZip = (zipCode) => {
+      return buyerZipMap.get(zipCode) || null;
+    };
+
+    // Handling request
     const sanitizedState = State.trim();
     const sanitizedZipCode = ZipCode.trim();
-    const findBuyerByZip = (zipCode) => {
-      return (
-        buyerZip.find((buyer) => buyer.zip.toString().trim() === zipCode) ||
-        null
-      );
-    };
+
+    console.log("sanitizedZipCode: ", sanitizedZipCode);
     const matchedBuyer = findBuyerByZip(sanitizedZipCode);
-    if (!matchedBuyer) {
-      return res
-        .status(400)
-        .json({ error: "Zipcode does not matched with the provided zipcode!" });
-    }
+    console.log("matchedBuyer: ", matchedBuyer);
 
     const leadData = {
       ApiToken: "D68FD1FD-AFC9-4F1F-820E-331BA7F78544",
@@ -124,7 +127,6 @@ exports.leadSubmit = async (req, res) => {
         },
       },
     };
-    console.log("xlaml response: ", leadData);
 
     const xmlResponse = await axios.post(
       "https://leadapi.px.com/api/lead/directpost",
