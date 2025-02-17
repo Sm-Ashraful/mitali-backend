@@ -2,12 +2,11 @@ const axios = require("axios");
 const lead = require("../models/lead");
 const xml2js = require("xml2js");
 const parse = require("json5");
-const buyerZip = require("../lib/buyerZip.json")
+const buyerZip = require("../lib/buyerZip.json");
 
 // const existingNumber = require("../lib/existingInfo.json");
 
 exports.leadSubmit = async (req, res) => {
-  console.log("Req;: ", req);
   try {
     const {
       ZipCode,
@@ -41,14 +40,18 @@ exports.leadSubmit = async (req, res) => {
     const sanitizedState = State.trim();
     const sanitizedZipCode = ZipCode.trim();
     const findBuyerByZip = (zipCode) => {
-     return buyerZip.find((buyer) => buyer.zip.toString().trim() === zipCode) || null;
-};
-const matchedBuyer = findBuyerByZip(sanitizedZipCode);
-if(!matchedBuyer){
-     return res.status(400).json({ error: "Zipcode does not matched with the provided zipcode!" });
-}
+      return (
+        buyerZip.find((buyer) => buyer.zip.toString().trim() === zipCode) ||
+        null
+      );
+    };
+    const matchedBuyer = findBuyerByZip(sanitizedZipCode);
+    if (!matchedBuyer) {
+      return res
+        .status(400)
+        .json({ error: "Zipcode does not matched with the provided zipcode!" });
+    }
 
-console.log("THis si okay")
     const leadData = {
       ApiToken: "D68FD1FD-AFC9-4F1F-820E-331BA7F78544",
       Vertical: "Medicare",
@@ -122,7 +125,7 @@ console.log("THis si okay")
       },
     };
     console.log("xlaml response: ", leadData);
-  
+
     const xmlResponse = await axios.post(
       "https://leadapi.px.com/api/lead/directpost",
       leadData,
@@ -172,6 +175,7 @@ console.log("THis si okay")
       return res.status(400).json({ message: "Information Invalid" });
     }
   } catch (error) {
+    console.error("Error:", error.message);
     if (error.response) {
       return res.status(error.response.status).json({
         success: false,
@@ -179,7 +183,6 @@ console.log("THis si okay")
         data: error.response.data,
       });
     } else {
-      console.error("Error:", error.message);
       return res
         .status(500)
         .json({ success: false, message: "Internal server error" });
