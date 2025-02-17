@@ -1,23 +1,30 @@
 const fs = require("fs");
 const XLSX = require("xlsx");
 
-// Replace 'phone.xlsx' with the path to your Excel file
-const excelFilePath = "./OSH_SuppressionList.xlsx 2024.xlsx";
+// Replace with the actual Excel file path
+const excelFilePath = "./buyerZip.xlsx";
 
 // Read the Excel file
 const workbook = XLSX.readFile(excelFilePath);
 
-// Assuming the first sheet is the one you want to convert
+// Get the first sheet name and its data
 const sheetName = workbook.SheetNames[0];
 const sheet = workbook.Sheets[sheetName];
 
-// Convert sheet data to JSON
-const jsonData = XLSX.utils.sheet_to_json(sheet, { header: "phone" });
+// Convert the sheet to JSON format
+const rawData = XLSX.utils.sheet_to_json(sheet);
 
-// Replace 'phone.json' with the desired JSON file name
-const jsonFilePath = "./phone.json";
+// Process the data into a structured format
+const structuredData = rawData.map(row => ({
+  zip: row["Zip"],
+  centerName: row["Center Name"],
+  state: row["State"]
+}));
 
-// Write JSON data to a file
-fs.writeFileSync(jsonFilePath, JSON.stringify(jsonData, null, 2));
+// Define the output JSON file path
+const jsonFilePath = "./buyerZip.json";
+
+// Save the structured JSON data
+fs.writeFileSync(jsonFilePath, JSON.stringify(structuredData, null, 2));
 
 console.log(`Conversion complete. JSON data saved to ${jsonFilePath}`);

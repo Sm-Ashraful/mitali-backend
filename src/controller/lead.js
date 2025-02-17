@@ -2,10 +2,12 @@ const axios = require("axios");
 const lead = require("../models/lead");
 const xml2js = require("xml2js");
 const parse = require("json5");
+const buyerZip = require("../lib/buyerZip.json")
 
-const existingNumber = require("../lib/existingInfo.json");
+// const existingNumber = require("../lib/existingInfo.json");
 
 exports.leadSubmit = async (req, res) => {
+  console.log("Req;: ", req);
   try {
     const {
       ZipCode,
@@ -38,7 +40,15 @@ exports.leadSubmit = async (req, res) => {
 
     const sanitizedState = State.trim();
     const sanitizedZipCode = ZipCode.trim();
+    const findBuyerByZip = (zipCode) => {
+     return buyerZip.find((buyer) => buyer.zip.toString().trim() === zipCode) || null;
+};
+const matchedBuyer = findBuyerByZip(sanitizedZipCode);
+if(!matchedBuyer){
+     return res.status(400).json({ error: "Zipcode does not matched with the provided zipcode!" });
+}
 
+console.log("THis si okay")
     const leadData = {
       ApiToken: "D68FD1FD-AFC9-4F1F-820E-331BA7F78544",
       Vertical: "Medicare",
@@ -111,8 +121,8 @@ exports.leadSubmit = async (req, res) => {
         },
       },
     };
-
-    // Make a request to the Medicare API
+    console.log("xlaml response: ", leadData);
+  
     const xmlResponse = await axios.post(
       "https://leadapi.px.com/api/lead/directpost",
       leadData,

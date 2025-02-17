@@ -1,8 +1,8 @@
 const csv = require("csvtojson");
 const fs = require("fs");
 
-const csvFilePath = "./OSH_SuppressionList 22.csv";
-const jsonFilePath = "../lib/existingInfo.json";
+const csvFilePath = "./badreq.csv";
+const jsonFilePath = "../lib/notValid.json";
 
 csv()
   .fromFile(csvFilePath)
