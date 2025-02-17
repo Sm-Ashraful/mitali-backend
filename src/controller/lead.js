@@ -54,6 +54,11 @@ exports.leadSubmit = async (req, res) => {
     console.log("sanitizedZipCode: ", sanitizedZipCode);
     const matchedBuyer = findBuyerByZip(sanitizedZipCode);
     console.log("matchedBuyer: ", matchedBuyer);
+    if (!matchedBuyer) {
+      return res
+        .status(400)
+        .json({ error: "Zipcode does not match the provided zipcode!" });
+    }
 
     const leadData = {
       ApiToken: "D68FD1FD-AFC9-4F1F-820E-331BA7F78544",
